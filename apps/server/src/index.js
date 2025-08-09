@@ -17,8 +17,10 @@ server.on("request", (_req, res) => {
   const path = `${filepath}/${filename}`;
 
   fs.readFile(path, (err, data) => {
-    if (err) res.end(err.message);
-    else res.end(data);
+    if (err) {
+      console.log(err.message);
+      res.end("Could not read questions deck");
+    } else res.end(data);
   });
 });
 
