@@ -1,0 +1,12 @@
+{
+  "name": "random-question",
+  "version": "1.0.0",
+  "description": "Server for interface showing random question from list",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  }
+}
