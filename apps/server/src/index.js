@@ -11,10 +11,24 @@ const {
   values: { filename, filepath },
 } = util.parseArgs({ args: process.argv.slice(2), options });
 
+const path = `${filepath}/${filename}`;
+
 const server = http.createServer();
 
-server.on("request", (_req, res) => {
-  const path = `${filepath}/${filename}`;
+server.on("request", (req, res) => {
+  console.log(
+    "HTTP",
+    req.httpVersion,
+    req.method,
+    req.url,
+    req.headers["user-agent"],
+  );
+  console.log("header: ", req.headers);
+
+  // CORS全許可
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, HEAD, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "*");
 
   fs.readFile(path, (err, data) => {
     if (err) {
