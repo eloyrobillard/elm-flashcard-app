@@ -43,19 +43,44 @@ server.on("request", (req, res) => {
       });
       break;
     case "PUT":
-      // いきなりdeckを上書きするのはちょっと怖いので
-      // ひとまずバックアップを作る
-      const now = new Date().toISOString();
-      const new_path = path + now;
+      let body = "";
 
-      fs.copyFile(path, new_path, (err) => {
-        if (err) {
-          console.log("Failed to back up current deck to:", new_path);
-          console.log("Reason:", err.message);
-        }
-
-        console.log("Backed up current deck to:", new_path);
+      req.on("data", (chunk) => {
+        body += chunk.toString();
       });
+
+      req.on("end", () => {
+        console.log("Received PUT data:", body);
+        res.writeHead(200, { "Content-Type": "text/plain" });
+        res.end("PUT data received");
+
+        if (!body) return;
+
+        // いきなりdeckを上書きするのはちょっと怖いので
+        // ひとまずバックアップを作る
+        const now = new Date().toISOString();
+        const new_path = path + now;
+
+        fs.copyFile(path, new_path, (err) => {
+          if (err) {
+            console.log("Failed to back up current deck to:", new_path);
+            console.log("Reason:", err.message);
+            return;
+          }
+
+          console.log("Backed up current deck to:", new_path);
+
+          fs.writeFile(path, body, (err) => {
+            if (err) {
+              console.log("Failed to save new deck:", err.message);
+              return;
+            }
+
+            console.log("Saved new deck to:", path);
+          });
+        });
+      });
+
       break;
     default:
       break;
