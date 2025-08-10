@@ -2,6 +2,8 @@ import fs from "node:fs";
 import http from "node:http";
 import util from "node:util";
 
+import { isValidFormat } from "./checkers.js";
+
 const options = {
   filename: { type: "string", default: "deck" },
   filepath: { type: "string", default: process.cwd() },
@@ -54,7 +56,15 @@ server.on("request", (req, res) => {
         res.writeHead(200, { "Content-Type": "text/plain" });
         res.end("PUT data received");
 
-        if (!body) return;
+        if (!body) {
+          console.log("[ERROR] Got an empty body!");
+          return;
+        }
+
+        if (!isValidFormat(body)) {
+          console.log("[ERROR] Request body is of invalid format!");
+          return;
+        }
 
         // いきなりdeckを上書きするのはちょっと怖いので
         // ひとまずバックアップを作る
