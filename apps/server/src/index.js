@@ -27,15 +27,39 @@ server.on("request", (req, res) => {
 
   // CORS全許可
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, HEAD, OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, HEAD, OPTIONS",
+  );
   res.setHeader("Access-Control-Allow-Headers", "*");
 
-  fs.readFile(path, (err, data) => {
-    if (err) {
-      console.log(err.message);
-      res.end("Could not read questions deck");
-    } else res.end(data);
-  });
+  switch (req.method) {
+    case "GET":
+      fs.readFile(path, (err, data) => {
+        if (err) {
+          console.log(err.message);
+          res.end("Could not read questions deck");
+        } else res.end(data);
+      });
+      break;
+    case "PUT":
+      // いきなりdeckを上書きするのはちょっと怖いので
+      // ひとまずバックアップを作る
+      const now = new Date().toISOString();
+      const new_path = path + now;
+
+      fs.copyFile(path, new_path, (err) => {
+        if (err) {
+          console.log("Failed to back up current deck to:", new_path);
+          console.log("Reason:", err.message);
+        }
+
+        console.log("Backed up current deck to:", new_path);
+      });
+      break;
+    default:
+      break;
+  }
 });
 
 server.listen(8001, "127.0.0.1", () => console.log("Listening on port 8001"));
