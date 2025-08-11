@@ -2,7 +2,8 @@ import fs from "node:fs";
 import http from "node:http";
 import util from "node:util";
 
-import { isValidFormat } from "./checkers.js";
+import * as services from "./services.js";
+import * as utils from "./utils.js";
 
 const options = {
   filename: { type: "string", default: "deck" },
@@ -51,44 +52,20 @@ server.on("request", (req, res) => {
         body += chunk.toString();
       });
 
-      req.on("end", () => {
-        console.log("Received PUT data:", body);
-        res.writeHead(200, { "Content-Type": "text/plain" });
-        res.end("PUT data received");
+      req.on("end", async () => {
+        console.log(utils.infof("Received PUT data:", body));
 
-        if (!body) {
-          console.log("[ERROR] Got an empty body!");
-          return;
+        const { status, message } = await services.handlePutMethod(body);
+
+        if (status === "error") {
+          console.log(utils.errorf(message));
+          res.writeHead(400);
+          res.end(message);
+        } else {
+          console.log(okf(message));
+          res.writeHead(200);
+          res.end(message);
         }
-
-        if (!isValidFormat(body)) {
-          console.log("[ERROR] Request body is of invalid format!");
-          return;
-        }
-
-        // いきなりdeckを上書きするのはちょっと怖いので
-        // ひとまずバックアップを作る
-        const now = new Date().toISOString();
-        const new_path = path + now;
-
-        fs.copyFile(path, new_path, (err) => {
-          if (err) {
-            console.log("Failed to back up current deck to:", new_path);
-            console.log("Reason:", err.message);
-            return;
-          }
-
-          console.log("Backed up current deck to:", new_path);
-
-          fs.writeFile(path, body, (err) => {
-            if (err) {
-              console.log("Failed to save new deck:", err.message);
-              return;
-            }
-
-            console.log("Saved new deck to:", path);
-          });
-        });
       });
 
       break;
