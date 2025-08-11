@@ -1,7 +1,6 @@
-import fsp from "node:fs/promises";
-
-import * as utils from "./utils.js";
 import * as checkers from "./checkers.js";
+import * as models from "./models.js";
+import * as utils from "./utils.js";
 
 /**
  * @param {string} body
@@ -21,26 +20,12 @@ export const handlePutReq = async (body) => {
   // いきなりdeckを上書きするのはちょっと怖いので
   // ひとまずバックアップを作る
   const now = new Date().toISOString();
-  const new_path = path + now;
+  const newPath = path + now;
 
-  try {
-    await fsp.copyFile(path, new_path);
-    console.log(utils.okf("Backed up current deck to:", new_path));
-  } catch (_) {
-    return {
-      status: "error",
-      message: "Failed to back up current deck: " + err.message,
-    };
-  }
+  const backupStatus = await models.backupDeck(path, newPath);
 
-  try {
-    await fsp.writeFile(path, body);
-  } catch (_) {
-    return {
-      status: "error",
-      message: "Failed to save new deck: " + err.message,
-    };
-  }
+  if (backupStatus.status === "error") return backupStatus;
+  else console.log(utils.okf(backupStatus.message));
 
-  return { status: "ok", message: "Saved new deck to: " + path };
+  return models.saveDeck(body, path);
 };
