@@ -42,6 +42,12 @@ export const handleRequest = (req, res) => {
         } else res.end(data);
       });
       break;
+    case "OPTIONS":
+      // necessary to signal to client which non-simple methods are allowed
+      // like PUT or PATCH (related to CORS)
+      res.writeHead(204);
+      res.end();
+      break;
     case "PUT":
       let body = "";
 
