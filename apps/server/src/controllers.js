@@ -53,7 +53,7 @@ export const handleRequest = async (req, res) => {
           res.writeHead(400);
           res.end(message);
         } else {
-          console.log(okf(message));
+          console.log(utils.okf(message));
           res.writeHead(200);
           res.end(message);
         }
