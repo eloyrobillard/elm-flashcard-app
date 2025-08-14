@@ -24,9 +24,12 @@ export const handleRequest = async (req, res) => {
       const result = await services.handleGetReq();
       if (result.status === "error") {
         console.log(utils.errorf(result.message));
+        res.writeHead(400);
+        res.end();
       } else {
         res.writeHead(200);
         res.end(result.data);
+        console.log(utils.infof("Sent deck over"));
       }
 
       break;

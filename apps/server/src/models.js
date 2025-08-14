@@ -3,7 +3,7 @@ import fsp from "node:fs/promises";
 export const readDeck = async (path) => {
   try {
     const deck = await fsp.readFile(path);
-    return { status: "ok", data: deck };
+    return { status: "ok", data: deck.toString() };
   } catch (err) {
     return { status: "error", message: "Could not read deck: " + err.message };
   }
