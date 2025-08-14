@@ -1,21 +1,7 @@
-import fs from "node:fs";
-import util from "node:util";
-
 import * as services from "./services.js";
 import * as utils from "./utils.js";
 
-const options = {
-  filename: { type: "string", default: "deck" },
-  filepath: { type: "string", default: process.cwd() },
-};
-
-const {
-  values: { filename, filepath },
-} = util.parseArgs({ args: process.argv.slice(2), options });
-
-const path = `${filepath}/${filename}`;
-
-export const handleRequest = (req, res) => {
+export const handleRequest = async (req, res) => {
   console.log(
     "HTTP",
     req.httpVersion,
@@ -35,12 +21,14 @@ export const handleRequest = (req, res) => {
 
   switch (req.method) {
     case "GET":
-      fs.readFile(path, (err, data) => {
-        if (err) {
-          console.log(err.message);
-          res.end("Could not read questions deck");
-        } else res.end(data);
-      });
+      const result = await services.handleGetReq();
+      if (result.status === "error") {
+        console.log(utils.errorf(result.message));
+      } else {
+        res.writeHead(200);
+        res.end(result.data);
+      }
+
       break;
     case "OPTIONS":
       // necessary to signal to client which non-simple methods are allowed

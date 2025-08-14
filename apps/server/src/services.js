@@ -1,6 +1,21 @@
+import util from "node:util";
+
 import * as checkers from "./checkers.js";
 import * as models from "./models.js";
 import * as utils from "./utils.js";
+
+const options = {
+  filename: { type: "string", default: "deck" },
+  filepath: { type: "string", default: process.cwd() },
+};
+
+const {
+  values: { filename, filepath },
+} = util.parseArgs({ args: process.argv.slice(2), options });
+
+const path = `${filepath}/${filename}`;
+
+export const handleGetReq = async () => models.readDeck(path);
 
 /**
  * @param {string} body
