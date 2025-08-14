@@ -10,10 +10,11 @@ export const handlePutReq = async (body) => {
     return { status: "error", message: "Got an empty body!" };
   }
 
-  if (!checkers.isValidFormat(body)) {
+  const isBodyValid = checkers.isValidFormat(body);
+  if (!isBodyValid.succeeded) {
     return {
       status: "error",
-      message: "Request body is of invalid format!",
+      message: "Request body is of invalid format: " + isBodyValid.errorOn,
     };
   }
 

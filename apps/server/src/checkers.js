@@ -2,10 +2,16 @@
  * @param {string} input
  */
 export const isValidFormat = (input) => {
-  if (!input) return false;
+  if (!input) return { succeeded: false, errorOn: "empty body" };
 
   const byNewline = input.split("\n");
-  const byComma = byNewline.map((subs) => subs.split(","));
+  const byComma = byNewline.map((subs) => subs.split(/","/));
 
-  return byComma.every((entry) => entry.length === 2);
+  for (let i = 0; i < byComma.length - 1; i++) {
+    if (byComma[i].length != 2) {
+      return { succeeded: false, errorOn: byComma[i] };
+    }
+  }
+
+  return { succeeded: true };
 };
