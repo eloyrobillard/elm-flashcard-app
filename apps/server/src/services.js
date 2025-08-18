@@ -1,7 +1,7 @@
 import util from "node:util";
 
 import * as checkers from "./checkers.js";
-import * as models from "./models.js";
+import * as repositories from "./repositories.js";
 import * as utils from "./utils.js";
 
 const options = {
@@ -15,7 +15,7 @@ const {
 
 const path = `${filepath}/${filename}`;
 
-export const handleGetReq = async () => models.readDeck(path);
+export const handleGetReq = async () => repositories.readDeck(path);
 
 /**
  * @param {string} body
@@ -38,10 +38,10 @@ export const handlePutReq = async (body) => {
   const now = new Date().toISOString();
   const newPath = path + now;
 
-  const backupStatus = await models.backupDeck(path, newPath);
+  const backupStatus = await repositories.backupDeck(path, newPath);
 
   if (backupStatus.status === "error") return backupStatus;
   else console.log(utils.okf(backupStatus.message));
 
-  return models.saveDeck(body, path);
+  return repositories.saveDeck(body, path);
 };
