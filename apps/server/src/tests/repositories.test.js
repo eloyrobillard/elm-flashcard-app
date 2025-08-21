@@ -1,6 +1,6 @@
 import fsp from "node:fs/promises";
 
-import * as repositories from "./repositories.js";
+import * as repositories from "../repositories.js";
 
 test("make an exact copy of deck", async () => {
   const src = "./test";
