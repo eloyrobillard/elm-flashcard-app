@@ -10,12 +10,12 @@ export const readDeck = async (path) => {
 };
 
 /**
- * @param {string} path
- * @param {string} newPath
+ * @param {string} src - Path to source.
+ * @param {string} dest - Path to copy.
  */
-export const backupDeck = async (path, newPath) => {
+export const backupDeck = async (src, dest) => {
   try {
-    await fsp.copyFile(path, newPath);
+    await fsp.copyFile(src, dest);
     return { status: "ok", message: "Backed up current deck to:", newPath };
   } catch (err) {
     return {
