@@ -45,5 +45,5 @@ export const handlePutReq = async (body) => {
   if (backupStatus.status === "error") return backupStatus;
   else console.log(utils.okf(backupStatus.message));
 
-  return repositories.saveDeck(body, fullPath);
+  return repositories.saveDeck(fullPath, body);
 };

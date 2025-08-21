@@ -26,10 +26,10 @@ export const backupDeck = async (src, dest) => {
 };
 
 /**
- * @param {string} body
  * @param {string} path
+ * @param {string} body
  */
-export const saveDeck = async (body, path) => {
+export const saveDeck = async (path, body) => {
   try {
     await fsp.writeFile(path, body);
     return { status: "ok", message: "Saved new deck to: " + path };
