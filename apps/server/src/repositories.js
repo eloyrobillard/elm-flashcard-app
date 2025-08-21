@@ -16,7 +16,7 @@ export const readDeck = async (path) => {
 export const backupDeck = async (src, dest) => {
   try {
     await fsp.copyFile(src, dest);
-    return { status: "ok", message: "Backed up current deck to:", newPath };
+    return { status: "ok", message: "Backed up current deck to:" + dest };
   } catch (err) {
     return {
       status: "error",
