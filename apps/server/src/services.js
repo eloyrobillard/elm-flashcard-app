@@ -15,7 +15,9 @@ const {
 
 const path = `${filepath}/${filename}`;
 
-export const handleGetReq = async () => repositories.readDeck(path);
+const fullPath = `${filepath}/${filename}`;
+
+export const handleGetReq = async () => repositories.readDeck(fullPath);
 
 /**
  * @param {string} body
@@ -36,12 +38,12 @@ export const handlePutReq = async (body) => {
   // いきなりdeckを上書きするのはちょっと怖いので
   // ひとまずバックアップを作る
   const now = new Date().toISOString();
-  const newPath = path + now;
+  const newPath = fullPath + now;
 
-  const backupStatus = await repositories.backupDeck(path, newPath);
+  const backupStatus = await repositories.backupDeck(fullPath, newPath);
 
   if (backupStatus.status === "error") return backupStatus;
   else console.log(utils.okf(backupStatus.message));
 
-  return repositories.saveDeck(body, path);
+  return repositories.saveDeck(body, fullPath);
 };
