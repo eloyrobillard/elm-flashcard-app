@@ -3,6 +3,8 @@
 
 deck*
 
+pnpm-lock.yaml
+
 ### Node ###
 # Logs
 logs
