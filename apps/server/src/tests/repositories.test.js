@@ -7,7 +7,7 @@ describe("repositories", () => {
   const src = "./test";
   const dest = "./dest";
 
-  beforeEach(() => fs.writeFileSync(src, ""));
+  beforeEach(() => fs.writeFileSync(src, "Test contents"));
 
   afterEach(() => fs.rmSync(src));
 
@@ -56,18 +56,29 @@ describe("repositories", () => {
     it("should make an exact copy of the deck", async () => {
       const { status, message } = await repositories.backupDeck(src, dest);
 
-      expect(status).not.toBeNull();
-      expect(status).toBeDefined();
-      expect(message).not.toBeNull();
-      expect(message).toBeDefined();
+      expect(status).toBe("ok");
 
-      if (status === "ok") {
-        try {
-          const cpContents = await fsp.readFile(dest);
-          expect(cpContents).toBe("Test contents");
-          fs.rmSync(dest);
-        } catch (_) {}
-      }
+      const cpContents = await fsp.readFile(dest, { encoding: "utf8" });
+      expect(cpContents).toBe("Test contents");
+      await fsp.rm(dest);
+    });
+
+    it("should return an error if the source does not exist", async () => {
+      const { status } = await repositories.backupDeck(
+        "./non/existent/path",
+        dest,
+      );
+
+      expect(status).toBe("error");
+    });
+
+    it("should return an error if the destination does not exist", async () => {
+      const { status } = await repositories.backupDeck(
+        src,
+        "./non/existent/path",
+      );
+
+      expect(status).toBe("error");
     });
   });
 });
