@@ -1,23 +1,8 @@
-import util from "node:util";
-
 import * as checkers from "./checkers.js";
 import * as repositories from "./repositories.js";
 import * as utils from "./utils.js";
 
-const options = {
-  filename: { type: "string", default: "deck" },
-  filepath: { type: "string", default: process.cwd() },
-};
-
-const {
-  values: { filename, filepath },
-} = util.parseArgs({ args: process.argv.slice(2), options });
-
-const path = `${filepath}/${filename}`;
-
-const fullPath = `${filepath}/${filename}`;
-
-export const handleGetReq = async () => repositories.readDeck(fullPath);
+export const handleGetReq = async (src) => repositories.readDeck(src);
 
 /**
  * @param {string} body
