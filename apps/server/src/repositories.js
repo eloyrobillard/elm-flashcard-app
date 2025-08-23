@@ -38,6 +38,7 @@ export const backupDeck = async (src, dest) => {
  * @param {string} body
  */
 export const saveDeck = async (path, body) => {
+  assert(typeof body === "string", "Deck body must be a string");
   try {
     await fsp.writeFile(path, body);
     return { status: "ok", message: "Saved new deck to: " + path };
