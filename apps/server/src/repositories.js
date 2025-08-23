@@ -1,3 +1,4 @@
+import assert from "node:assert";
 import fsp from "node:fs/promises";
 
 import * as errors from "./errors.js";
@@ -40,11 +41,15 @@ export const saveDeck = async (path, body) => {
   try {
     await fsp.writeFile(path, body);
     return { status: "ok", message: "Saved new deck to: " + path };
-  } catch (err) {
+  } catch (e) {
+    let error = errors.unknownError;
+    if (e.name === "Error" && e.message.startsWith("ENOENT"))
+      error = errors.invalidPath;
+
     return {
       status: "error",
-      error: errors.deckSaveFailure,
-      message: "Failed to save new deck: " + err.message,
+      error,
+      message: "Failed to save new deck: " + e.message,
     };
   }
 };
