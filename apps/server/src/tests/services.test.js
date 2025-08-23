@@ -16,5 +16,11 @@ describe("services", () => {
 
       await fsp.rm(src);
     });
+
+    it("should return a message if the source does not exist", async () => {
+      const { status } = await services.handleGetReq("./non/existent/path");
+
+      expect(status).toBe("error");
+    });
   });
 });
