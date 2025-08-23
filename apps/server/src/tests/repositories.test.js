@@ -56,7 +56,7 @@ describe("repositories", () => {
   });
 
   describe("backupDeck", () => {
-    it("should make an exact copy of deck", async () => {
+    it("should make an exact copy of the deck", async () => {
       const { status, message } = await repositories.backupDeck(src, dest);
 
       expect(status).not.toBeNull();
