@@ -1,4 +1,5 @@
 import * as checkers from "./checkers.js";
+import * as config from "./config.js";
 import * as errors from "./errors.js";
 import * as repositories from "./repositories.js";
 import * as utils from "./utils.js";
@@ -29,6 +30,7 @@ export const handlePutReq = async (body) => {
   // いきなりdeckを上書きするのはちょっと怖いので
   // ひとまずバックアップを作る
   const now = new Date().toISOString();
+  const fullPath = config.getFullPath();
   const newPath = fullPath + now;
 
   const backupStatus = await repositories.backupDeck(fullPath, newPath);
