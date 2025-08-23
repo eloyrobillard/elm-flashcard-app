@@ -34,24 +34,21 @@ describe("repositories", () => {
   });
 
   describe("readDeck", () => {
-    it("should read the contents of a deck", async () => {
+    it("should read the contents of an existing deck", async () => {
       const data = "test message";
 
-      try {
-        await fsp.writeFile(src, data);
-      } catch (_) {}
+      await fsp.writeFile(src, data);
 
       const res = await repositories.readDeck(src);
 
-      expect(res.status).not.toBeNull();
-      expect(res.status).toBeDefined();
+      expect(res.status).toBe("ok");
+      expect(res.data).toBe(data);
+    });
 
-      if (res.status === "ok") {
-        expect(res.data).toBe(data);
-      } else {
-        expect(res.message).not.toBeNull();
-        expect(res.message).toBeDefined();
-      }
+    it("should return an error if the deck does not exist", async () => {
+      const res = await repositories.readDeck("./non/existent/path");
+
+      expect(res.status).toBe("error");
     });
   });
 
