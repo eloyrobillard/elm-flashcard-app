@@ -1,4 +1,5 @@
 import * as checkers from "./checkers.js";
+import * as errors from "./errors.js";
 import * as repositories from "./repositories.js";
 import * as utils from "./utils.js";
 
@@ -9,13 +10,18 @@ export const handleGetReq = async (src) => repositories.readDeck(src);
  */
 export const handlePutReq = async (body) => {
   if (!body) {
-    return { status: "error", message: "Got an empty body!" };
+    return {
+      status: "error",
+      error: errors.emptyBody,
+      message: "Got an empty body!",
+    };
   }
 
   const isBodyValid = checkers.isValidFormat(body);
   if (!isBodyValid.succeeded) {
     return {
       status: "error",
+      error: errors.invalidBody,
       message: "Request body is of invalid format: " + isBodyValid.errorOn,
     };
   }

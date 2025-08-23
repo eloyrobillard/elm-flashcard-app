@@ -1,11 +1,17 @@
 import fsp from "node:fs/promises";
 
+import * as errors from "./errors.js";
+
 export const readDeck = async (path) => {
   try {
     const deck = await fsp.readFile(path);
     return { status: "ok", data: deck.toString() };
   } catch (err) {
-    return { status: "error", message: "Could not read deck: " + err.message };
+    return {
+      status: "error",
+      error: errors.deckReadFailure,
+      message: "Could not read deck: " + err.message,
+    };
   }
 };
 
@@ -20,6 +26,7 @@ export const backupDeck = async (src, dest) => {
   } catch (err) {
     return {
       status: "error",
+      error: errors.deckBackupFailure,
       message: "Failed to back up current deck: " + err.message,
     };
   }
@@ -36,6 +43,7 @@ export const saveDeck = async (path, body) => {
   } catch (err) {
     return {
       status: "error",
+      error: errors.deckSaveFailure,
       message: "Failed to save new deck: " + err.message,
     };
   }
