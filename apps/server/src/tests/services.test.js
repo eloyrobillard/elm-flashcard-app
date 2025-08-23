@@ -7,7 +7,7 @@ describe("services", () => {
       const src = "./test";
       await fsp.writeFile(src, "test body");
 
-      const { status, message } = await services.handleGetReq(src);
+      const { status } = await services.handleGetReq(src);
 
       expect(status).toBe("ok");
 
