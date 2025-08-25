@@ -1,6 +1,13 @@
+import http from "node:http";
+
+import * as config from "./config.js";
 import * as services from "./services.js";
 import * as utils from "./utils.js";
 
+/**
+ * @param {http.IncomingMessage} req
+ * @param {http.ServerResponse} res
+ */
 export const handleRequest = async (req, res) => {
   console.log(
     "HTTP",
@@ -21,14 +28,14 @@ export const handleRequest = async (req, res) => {
 
   switch (req.method) {
     case "GET":
-      const result = await services.handleGetReq();
-      if (result.status === "error") {
-        console.log(utils.errorf(result.message));
+      const result = await services.handleGetReq(config.getFilePath());
+      if (result.tag === "error") {
+        console.log(utils.errorf(result.value));
         res.writeHead(400);
         res.end();
       } else {
         res.writeHead(200);
-        res.end(result.data);
+        res.end(result.value);
         console.log(utils.infof("Sent deck over"));
       }
 
@@ -49,7 +56,8 @@ export const handleRequest = async (req, res) => {
       req.on("end", async () => {
         console.log(utils.infof("Received PUT data:", body));
 
-        const { status, message } = await services.handlePutReq(body);
+        const { tag: status, value: message } =
+          await services.handlePutReq(body);
 
         if (status === "error") {
           console.log(utils.errorf(message));

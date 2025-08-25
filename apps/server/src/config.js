@@ -1,5 +1,6 @@
 import util from "node:util";
 
+/** @type {{[key: string]: { type: "string", default: string}}}  */
 const options = {
   filename: { type: "string", default: "deck" },
   filepath: { type: "string", default: process.cwd() },

@@ -7,7 +7,7 @@ import * as R from "./result.js";
 import * as utils from "./utils.js";
 
 /**
- * @param {string} src
+ * @param {string} src - Path to the source file
  */
 export const handleGetReq = async (src) => repositories.readDeck(src);
 

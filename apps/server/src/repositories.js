@@ -4,7 +4,7 @@ import fsp from "node:fs/promises";
 import * as R from "./result.js";
 
 /**
- * @param {string} src
+ * @param {string} src - Path to the source file
  * @returns {Promise<import("./result.ts").Result<string, string>>}
  */
 export const readDeck = async (src) => {
