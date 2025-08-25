@@ -7,9 +7,9 @@ describe("services", () => {
       const src = "./test";
       await fsp.writeFile(src, "test body");
 
-      const { status } = await services.handleGetReq(src);
+      const { tag } = await services.handleGetReq(src);
 
-      expect(status).toBe("ok");
+      expect(tag).toBe("ok");
 
       const body = await fsp.readFile(src, { encoding: "utf8" });
       expect(body).toBe("test body");
@@ -18,9 +18,9 @@ describe("services", () => {
     });
 
     it("should return a message if the source does not exist", async () => {
-      const { status } = await services.handleGetReq("./non/existent/path");
+      const { tag } = await services.handleGetReq("./non/existent/path");
 
-      expect(status).toBe("error");
+      expect(tag).toBe("error");
     });
   });
 });
