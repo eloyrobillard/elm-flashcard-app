@@ -1,17 +1,19 @@
 import assert from "node:assert";
 import fsp from "node:fs/promises";
 
-import * as errors from "./errors.js";
-
-export const readDeck = async (path) => {
+/**
+ * @param {string} src
+ * @returns {Promise<{tag: string, value: string}>}
+ */
+export const readDeck = async (src) => {
   try {
-    const deck = await fsp.readFile(path);
-    return { status: "ok", data: deck.toString() };
+    const deck = await fsp.readFile(src);
+    return { tag: "ok", value: deck.toString() };
   } catch (e) {
+    assert(e instanceof Error);
     return {
-      status: "error",
-      error: errors.translateError(e),
-      message: "Could not read deck: " + e.message,
+      tag: "error",
+      value: "Could not read deck: " + e.message,
     };
   }
 };
@@ -19,16 +21,17 @@ export const readDeck = async (path) => {
 /**
  * @param {string} src - Path to source.
  * @param {string} dest - Path to copy.
+ * @returns {Promise<{tag: string, value: string}>}
  */
 export const backupDeck = async (src, dest) => {
   try {
     await fsp.copyFile(src, dest);
-    return { status: "ok", message: "Backed up current deck to: " + dest };
+    return { tag: "ok", value: "Backed up current deck to: " + dest };
   } catch (e) {
+    assert(e instanceof Error);
     return {
-      status: "error",
-      error: errors.translateError(e),
-      message: "Failed to back up current deck: " + e.message,
+      tag: "error",
+      value: "Failed to back up current deck: " + e.message,
     };
   }
 };
@@ -36,17 +39,17 @@ export const backupDeck = async (src, dest) => {
 /**
  * @param {string} path
  * @param {string} body
+ * @returns {Promise<{tag: string, value: string}>}
  */
 export const saveDeck = async (path, body) => {
-  assert(typeof body === "string", "Deck body must be a string");
   try {
     await fsp.writeFile(path, body);
-    return { status: "ok", message: "Saved new deck to: " + path };
+    return { tag: "ok", value: "Saved new deck to: " + path };
   } catch (e) {
+    assert(e instanceof Error);
     return {
-      status: "error",
-      error: errors.translateError(e),
-      message: "Failed to save new deck: " + e.message,
+      tag: "error",
+      value: "Failed to save new deck: " + e.message,
     };
   }
 };
