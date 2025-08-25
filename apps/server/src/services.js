@@ -1,29 +1,27 @@
+import assert from "node:assert";
+
 import * as checkers from "./checkers.js";
 import * as config from "./config.js";
-import * as errors from "./errors.js";
 import * as repositories from "./repositories.js";
 import * as utils from "./utils.js";
 
+/**
+ * @param {string} src
+ */
 export const handleGetReq = async (src) => repositories.readDeck(src);
 
 /**
  * @param {string} body
+ * @returns {Promise<{tag: string, value: string}>}
  */
 export const handlePutReq = async (body) => {
-  if (!body) {
-    return {
-      status: "error",
-      error: errors.emptyBody,
-      message: "Got an empty body!",
-    };
-  }
+  assert(!!body, "Got an empty body");
 
   const isBodyValid = checkers.isValidFormat(body);
   if (!isBodyValid.succeeded) {
     return {
-      status: "error",
-      error: errors.invalidBody,
-      message: "Request body is of invalid format: " + isBodyValid.errorOn,
+      tag: "error",
+      value: "Request body is of invalid format: " + isBodyValid.errorOn,
     };
   }
 
@@ -35,8 +33,8 @@ export const handlePutReq = async (body) => {
 
   const backupStatus = await repositories.backupDeck(fullPath, newPath);
 
-  if (backupStatus.status === "error") return backupStatus;
-  else console.log(utils.okf(backupStatus.message));
+  if (backupStatus.tag === "error") return backupStatus;
+  else console.log(utils.okf(backupStatus.value));
 
   return repositories.saveDeck(fullPath, body);
 };
