@@ -19,7 +19,7 @@ describe("services", () => {
       await fsp.rm(src);
     });
 
-    it("should return a message if the source does not exist", async () => {
+    it("should return an error if the source does not exist", async () => {
       const { tag } = await services.handleGetReq("./non/existent/path");
 
       expect(tag).toBe("error");
