@@ -1,6 +1,7 @@
 import http from "node:http";
 
 import * as config from "./config.js";
+import * as R from "./result.js";
 import * as services from "./services.js";
 import * as utils from "./utils.js";
 
@@ -56,18 +57,21 @@ export const handleRequest = async (req, res) => {
       req.on("end", async () => {
         console.log(utils.infof("Received PUT data:", body));
 
-        const { tag: status, value: message } =
-          await services.handlePutReq(body);
+        const result = await services.handlePutReq(body);
 
-        if (status === "error") {
-          console.log(utils.errorf(message));
-          res.writeHead(400);
-          res.end(message);
-        } else {
-          console.log(utils.okf(message));
-          res.writeHead(200);
-          res.end(message);
-        }
+        R.reduce(
+          (err) => {
+            console.log(utils.errorf(err));
+            res.writeHead(400);
+            res.end(err);
+          },
+          (value) => {
+            console.log(utils.okf(value));
+            res.writeHead(200);
+            res.end(value);
+          },
+          result,
+        );
       });
 
       break;

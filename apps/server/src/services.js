@@ -31,8 +31,12 @@ export const handlePutReq = async (body) => {
 
   const backupStatus = await repositories.backupDeck(fullPath, newPath);
 
-  if (backupStatus.tag === "error") return backupStatus;
-  else console.log(utils.okf(backupStatus.value));
-
-  return repositories.saveDeck(fullPath, body);
+  return R.reduce(
+    (_err) => backupStatus,
+    (value) => {
+      console.log(utils.okf(value));
+      return repositories.saveDeck(fullPath, body);
+    },
+    backupStatus,
+  );
 };
