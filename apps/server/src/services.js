@@ -2,6 +2,7 @@ import assert from "node:assert";
 
 import * as checkers from "./checkers.js";
 import * as config from "./config.js";
+import * as errors from "./errors.js";
 import * as repositories from "./repositories.js";
 import * as R from "./result.ts";
 import * as utils from "./utils.js";
@@ -20,7 +21,7 @@ export const handlePutReq = async (body) => {
 
   const isBodyValid = checkers.isValidFormat(body);
   if (!isBodyValid.succeeded) {
-    return R.err("Request body is of invalid format: " + isBodyValid.errorOn);
+    return R.err(errors.invalidFormatError + isBodyValid.errorOn);
   }
 
   // いきなりdeckを上書きするのはちょっと怖いので

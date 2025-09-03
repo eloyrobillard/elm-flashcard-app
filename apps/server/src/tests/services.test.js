@@ -1,5 +1,6 @@
 import fsp from "node:fs/promises";
 
+import * as errors from "../errors.js";
 import * as R from "../result.ts";
 import * as services from "../services.js";
 
@@ -20,9 +21,10 @@ describe("services", () => {
     });
 
     it("should return an error if the source does not exist", async () => {
-      const { tag } = await services.handleGetReq("./non/existent/path");
+      const { tag, value } = await services.handleGetReq("./non/existent/path");
 
       expect(tag).toBe("error");
+      expect(value.startsWith(errors.readDeckError)).toBe(true);
     });
   });
 
@@ -38,9 +40,10 @@ describe("services", () => {
     it("should return an error if the input is of invalid format", async () => {
       const invalidBody = '"invalid"\n"body"';
 
-      const res = await services.handlePutReq(invalidBody);
+      const { tag, value } = await services.handlePutReq(invalidBody);
 
-      expect(R.isErr(res)).toBe(true);
+      expect(tag).toBe("error");
+      expect(value.startsWith(errors.invalidFormatError)).toBe(true);
     });
   });
 });
