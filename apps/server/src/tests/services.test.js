@@ -1,6 +1,6 @@
 import fsp from "node:fs/promises";
 
-import * as R from "../result.js";
+import * as R from "../result.ts";
 import * as services from "../services.js";
 
 describe("services", () => {

@@ -1,7 +1,7 @@
 import http from "node:http";
 
 import * as config from "./config.js";
-import * as R from "./result.js";
+import * as R from "./result.ts";
 import * as services from "./services.js";
 import * as utils from "./utils.js";
 

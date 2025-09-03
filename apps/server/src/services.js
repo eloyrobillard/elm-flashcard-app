@@ -3,7 +3,7 @@ import assert from "node:assert";
 import * as checkers from "./checkers.js";
 import * as config from "./config.js";
 import * as repositories from "./repositories.js";
-import * as R from "./result.js";
+import * as R from "./result.ts";
 import * as utils from "./utils.js";
 
 /**

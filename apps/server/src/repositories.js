@@ -1,8 +1,8 @@
 import assert from "node:assert";
 import fsp from "node:fs/promises";
 
-import * as R from "./result.js";
-import * as TUtils from "./type-utils.js";
+import * as R from "./result.ts";
+import * as TUtils from "./type-utils.ts";
 
 /**
  * @param {string} src - Path to the source file
