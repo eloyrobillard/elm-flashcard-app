@@ -2,6 +2,7 @@ import assert from "node:assert";
 import fsp from "node:fs/promises";
 
 import * as R from "./result.js";
+import * as TUtils from "./type-utils.js";
 
 /**
  * @param {string} src - Path to the source file
@@ -12,7 +13,7 @@ export const readDeck = async (src) => {
     const deck = await fsp.readFile(src);
     return R.ok(deck.toString());
   } catch (e) {
-    assert(e instanceof Error);
+    assert(TUtils.assertSimpleError(e));
     return R.err("Could not read deck: " + e.message);
   }
 };
@@ -27,7 +28,7 @@ export const backupDeck = async (src, dest) => {
     await fsp.copyFile(src, dest);
     return R.ok("Backed up current deck to: " + dest);
   } catch (e) {
-    assert(e instanceof Error);
+    assert(TUtils.assertSimpleError(e));
     return R.err("Failed to back up current deck: " + e.message);
   }
 };
@@ -42,7 +43,7 @@ export const saveDeck = async (path, body) => {
     await fsp.writeFile(path, body);
     return R.ok("Saved new deck to: " + path);
   } catch (e) {
-    assert(e instanceof Error);
+    assert(TUtils.assertSimpleError(e));
     return R.err("Failed to save new deck: " + e.message);
   }
 };
