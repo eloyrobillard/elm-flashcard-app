@@ -1,6 +1,7 @@
 import assert from "node:assert";
 import fsp from "node:fs/promises";
 
+import * as errors from "./errors.js";
 import * as R from "./result.ts";
 import * as TUtils from "./type-utils.ts";
 
@@ -14,7 +15,7 @@ export const readDeck = async (src) => {
     return R.ok(deck.toString());
   } catch (e) {
     assert(TUtils.assertSimpleError(e));
-    return R.err("Could not read deck: " + e.message);
+    return R.err(errors.readDeckError + e.message);
   }
 };
 
@@ -29,7 +30,7 @@ export const backupDeck = async (src, dest) => {
     return R.ok("Backed up current deck to: " + dest);
   } catch (e) {
     assert(TUtils.assertSimpleError(e));
-    return R.err("Failed to back up current deck: " + e.message);
+    return R.err(errors.backupDeckError + e.message);
   }
 };
 
@@ -44,6 +45,6 @@ export const saveDeck = async (path, body) => {
     return R.ok("Saved new deck to: " + path);
   } catch (e) {
     assert(TUtils.assertSimpleError(e));
-    return R.err("Failed to save new deck: " + e.message);
+    return R.err(errors.saveDeckError + e.message);
   }
 };

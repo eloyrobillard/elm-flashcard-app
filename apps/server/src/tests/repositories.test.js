@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 
+import * as errors from "../errors.js";
 import * as repositories from "../repositories.js";
 
 describe("repositories", () => {
@@ -24,12 +25,13 @@ describe("repositories", () => {
     });
 
     it("should fail to create a deck when the path is invalid", async () => {
-      const { tag } = await repositories.saveDeck(
+      const { tag, value } = await repositories.saveDeck(
         "./non/existent/path",
         "useless body",
       );
 
       expect(tag).toBe("error");
+      expect(value.startsWith(errors.saveDeckError)).toBe(true);
     });
   });
 
@@ -45,10 +47,11 @@ describe("repositories", () => {
       expect(res.value).toBe(data);
     });
 
-    it("should return an error if the deck does not exist", async () => {
-      const res = await repositories.readDeck("./non/existent/path");
+    it("should fail if the deck does not exist", async () => {
+      const { tag, value } = await repositories.readDeck("./non/existent/path");
 
-      expect(res.tag).toBe("error");
+      expect(tag).toBe("error");
+      expect(value.startsWith(errors.readDeckError)).toBe(true);
     });
   });
 
@@ -64,19 +67,24 @@ describe("repositories", () => {
       await fsp.rm(dest);
     });
 
-    it("should return an error if the source does not exist", async () => {
-      const { tag } = await repositories.backupDeck(
+    it("should fail if the source does not exist", async () => {
+      const { tag, value } = await repositories.backupDeck(
         "./non/existent/path",
         dest,
       );
 
       expect(tag).toBe("error");
+      expect(value.startsWith(errors.backupDeckError)).toBe(true);
     });
 
-    it("should return an error if the destination does not exist", async () => {
-      const { tag } = await repositories.backupDeck(src, "./non/existent/path");
+    it("should fail if the destination does not exist", async () => {
+      const { tag, value } = await repositories.backupDeck(
+        src,
+        "./non/existent/path",
+      );
 
       expect(tag).toBe("error");
+      expect(value.startsWith(errors.backupDeckError)).toBe(true);
     });
   });
 });
