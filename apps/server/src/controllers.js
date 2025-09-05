@@ -57,7 +57,7 @@ export const handleRequest = async (req, res) => {
       req.on("end", async () => {
         console.log(utils.infof("Received PUT data:", body));
 
-        const result = await services.handlePutReq(body);
+        const result = await services.handlePutReq(body, config.getFullPath());
 
         R.reduce(
           (err) => {

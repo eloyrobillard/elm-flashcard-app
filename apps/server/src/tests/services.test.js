@@ -31,16 +31,21 @@ describe("services", () => {
   describe("handlePutReq", () => {
     it("should save a new deck file", async () => {
       const validBody = '"valid","body"\n"valid","body"';
+      const validPath = "./tests/deck";
 
-      const res = await services.handlePutReq(validBody);
+      const res = await services.handlePutReq(validBody, validPath);
 
       expect(R.isOk(res)).toBe(true);
     });
 
     it("should return an error if the input is of invalid format", async () => {
       const invalidBody = '"invalid"\n"body"';
+      const validPath = "./tests/deck";
 
-      const { tag, value } = await services.handlePutReq(invalidBody);
+      const { tag, value } = await services.handlePutReq(
+        invalidBody,
+        validPath,
+      );
 
       expect(tag).toBe("error");
       expect(value.startsWith(errors.invalidFormatError)).toBe(true);

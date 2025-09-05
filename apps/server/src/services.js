@@ -14,9 +14,10 @@ export const handleGetReq = async (src) => repositories.readDeck(src);
 
 /**
  * @param {string} body
+ * @param {string} path
  * @returns {Promise<import("./result.ts").Result<string, string>>}
  */
-export const handlePutReq = async (body) => {
+export const handlePutReq = async (body, path) => {
   assert(!!body, "Got an empty body");
 
   const isBodyValid = checkers.isValidFormat(body);
@@ -27,16 +28,15 @@ export const handlePutReq = async (body) => {
   // いきなりdeckを上書きするのはちょっと怖いので
   // ひとまずバックアップを作る
   const now = new Date().toISOString();
-  const fullPath = config.getFullPath();
-  const newPath = fullPath + now;
+  const newPath = path + now;
 
-  const backupStatus = await repositories.backupDeck(fullPath, newPath);
+  const backupStatus = await repositories.backupDeck(path, newPath);
 
   return R.reduce(
     (_err) => backupStatus,
     (value) => {
       console.log(utils.okf(value));
-      return repositories.saveDeck(fullPath, body);
+      return repositories.saveDeck(path, body);
     },
     backupStatus,
   );
