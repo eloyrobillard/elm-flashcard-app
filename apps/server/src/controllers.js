@@ -29,7 +29,7 @@ export const handleRequest = async (req, res) => {
 
   switch (req.method) {
     case "GET":
-      const result = await services.handleGetReq(config.getFilePath());
+      const result = await services.handleGetReq(config.getFullPath());
       if (result.tag === "error") {
         console.log(utils.errorf(result.value));
         res.writeHead(400);
