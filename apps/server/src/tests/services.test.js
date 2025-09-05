@@ -50,5 +50,18 @@ describe("services", () => {
       expect(tag).toBe("error");
       expect(value.startsWith(errors.invalidFormatError)).toBe(true);
     });
+
+    it("should fail if the path is invalid", async () => {
+      const validBody = '"valid","body"\n"valid","body"';
+      const invalidPath = "./invalid/path/deck";
+
+      const { tag, value } = await services.handlePutReq(
+        validBody,
+        invalidPath,
+      );
+
+      expect(tag).toBe("error");
+      expect(value.startsWith(errors.backupDeckError)).toBe(true);
+    });
   });
 });
