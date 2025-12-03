@@ -1,5 +1,5 @@
 {
-	"name": "random-question",
+	"name": "node-flashcard-app",
 	"version": "1.0.0",
 	"description": "Server for interface showing random question from list",
 	"license": "ISC",
@@ -7,13 +7,16 @@
 	"type": "module",
 	"main": "index.js",
 	"scripts": {
-		"start": "ts-node src/index.js",
+		"dev": "ts-node src/index.js",
+		"build": "pnpm i",
+		"check-types": "tsc --noEmit",
 		"test": "jest"
 	},
 	"devDependencies": {
 		"@types/jest": "^30.0.0",
 		"@types/node": "^24.3.0",
 		"jest": "^30.0.5",
-		"ts-jest": "^29.4.1"
+		"ts-jest": "^29.4.1",
+		"ts-node": "^10.9.2"
 	}
 }
