@@ -1,11 +1,13 @@
 module Page.Review exposing (..)
 
 import Array
+import Deckname
 import Html exposing (Html, button, div, h3, p, text, textarea)
 import Html.Attributes exposing (attribute, id, placeholder, type_)
 import Html.Events as Events
 import Http
 import Random
+import Session
 import Svg exposing (path, svg)
 import Svg.Attributes exposing (class, d, fill, viewBox)
 
@@ -19,12 +21,12 @@ type alias Deck =
 
 
 type alias Model =
-    { showDeleteConfirmDialog : Bool, editingQuestion : Bool, editingAnswer : Bool, showDropdown : Bool, freeTextQuestion : String, freeTextAnswer : String, isEditing : Bool, showQuestion : Bool, showAnswer : Bool, questionNumber : Int, deck : Deck }
+    { session : Session.Session, showDeleteConfirmDialog : Bool, editingQuestion : Bool, editingAnswer : Bool, showDropdown : Bool, freeTextQuestion : String, freeTextAnswer : String, isEditing : Bool, showQuestion : Bool, showAnswer : Bool, questionNumber : Int, deck : Deck }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( { showDeleteConfirmDialog = False, editingQuestion = False, editingAnswer = False, showDropdown = False, freeTextQuestion = "", freeTextAnswer = "", isEditing = False, showQuestion = False, showAnswer = False, questionNumber = 0, deck = Array.empty }
+init : Session.Session -> Deckname.Deckname -> ( Model, Cmd Msg )
+init session deckname =
+    ( { session = session, showDeleteConfirmDialog = False, editingQuestion = False, editingAnswer = False, showDropdown = False, freeTextQuestion = "", freeTextAnswer = "", isEditing = False, showQuestion = False, showAnswer = False, questionNumber = 0, deck = Array.empty }
     , getDeckHttp
     )
 
@@ -307,7 +309,7 @@ subscriptions _ =
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> { title : String, content : Html Msg }
 view model =
     let
         ( question, answer ) =
@@ -439,48 +441,60 @@ view model =
                         [ text "Delete card" ]
                     ]
     in
-    div [ Html.Attributes.class "flex w-full flex-col" ]
-        [ div [ Html.Attributes.class "preview flex w-full justify-center data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start p-10", attribute "data-align" "center" ]
-            [ div [ Html.Attributes.class "flex w-fit items-stretch [&>*]:focus-visible:z-10 [&>*]:focus-visible:relative [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md has-[>[data-slot=button-group]]:gap-2 [&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none", attribute "data-slot" "button-group", attribute "role" "group" ]
-                [ div [ Html.Attributes.class "w-fit items-stretch [&>*]:focus-visible:z-10 [&>*]:focus-visible:relative [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md has-[>[data-slot=button-group]]:gap-2 [&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none hidden sm:flex", attribute "data-slot" "button-group", attribute "role" "group" ]
-                    [ button [ attribute "aria-label" "Go Back", Html.Attributes.class "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 size-9", attribute "data-slot" "button" ]
-                        [ Svg.svg [ Svg.Attributes.class "lucide lucide-arrow-left", Svg.Attributes.fill "none", attribute "height" "24", attribute "stroke" "currentColor", attribute "stroke-linecap" "round", attribute "stroke-linejoin" "round", attribute "stroke-width" "2", Svg.Attributes.viewBox "0 0 24 24", attribute "width" "24", attribute "xmlns" "http://www.w3.org/2000/svg" ]
-                            [ Svg.path [ Svg.Attributes.d "m12 19-7-7 7-7" ]
-                                []
-                            , Svg.path [ Svg.Attributes.d "M19 12H5" ]
-                                []
+    { title = "Review"
+    , content =
+        div [ Html.Attributes.class "flex w-full flex-col" ]
+            [ div [ Html.Attributes.class "preview flex w-full justify-center data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start p-10", attribute "data-align" "center" ]
+                [ div [ Html.Attributes.class "flex w-fit items-stretch [&>*]:focus-visible:z-10 [&>*]:focus-visible:relative [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md has-[>[data-slot=button-group]]:gap-2 [&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none", attribute "data-slot" "button-group", attribute "role" "group" ]
+                    [ div [ Html.Attributes.class "w-fit items-stretch [&>*]:focus-visible:z-10 [&>*]:focus-visible:relative [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md has-[>[data-slot=button-group]]:gap-2 [&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none hidden sm:flex", attribute "data-slot" "button-group", attribute "role" "group" ]
+                        [ button [ attribute "aria-label" "Go Back", Html.Attributes.class "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 size-9", attribute "data-slot" "button" ]
+                            [ Svg.svg [ Svg.Attributes.class "lucide lucide-arrow-left", Svg.Attributes.fill "none", attribute "height" "24", attribute "stroke" "currentColor", attribute "stroke-linecap" "round", attribute "stroke-linejoin" "round", attribute "stroke-width" "2", Svg.Attributes.viewBox "0 0 24 24", attribute "width" "24", attribute "xmlns" "http://www.w3.org/2000/svg" ]
+                                [ Svg.path [ Svg.Attributes.d "m12 19-7-7 7-7" ]
+                                    []
+                                , Svg.path [ Svg.Attributes.d "M19 12H5" ]
+                                    []
+                                ]
                             ]
                         ]
-                    ]
-                , div [ Html.Attributes.class "flex w-fit items-stretch [&>*]:focus-visible:z-10 [&>*]:focus-visible:relative [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md has-[>[data-slot=button-group]]:gap-2 [&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none", attribute "data-slot" "button-group", attribute "role" "group" ]
-                    [ button [ Html.Attributes.class "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3", attribute "data-slot" "button" ]
-                        [ text "View all cards" ]
-                    , button [ Html.Attributes.class "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3", attribute "data-slot" "button", Events.onClick PickRandom ]
-                        [ text "Next random question" ]
-                    ]
-                , deleteButton
-                ]
-            ]
-        , div [ Html.Attributes.class "preview flex w-full justify-center data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start p-10", attribute "data-align" "center" ]
-            [ div
-                [ Html.Attributes.class "flex w-full max-w-md flex-col gap-6" ]
-                [ div [ Html.Attributes.class "flex" ]
-                    [ div [ Html.Attributes.class "group/item flex grow-1 items-center border text-sm rounded-md transition-colors [a]:hover:bg-accent/50 [a]:transition-colors duration-100 flex-wrap outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] border-border p-4 gap-4", attribute "data-size" "default", attribute "data-slot" "item", attribute "data-variant" "outline" ]
-                        [ div [ Html.Attributes.class "flex flex-1 flex-col gap-1 [&+[data-slot=item-content]]:flex-none", attribute "data-slot" "item-content" ]
-                            [ div [ Html.Attributes.class "flex w-fit items-center gap-2 text-sm leading-snug font-medium", attribute "data-slot" "item-title" ]
-                                [ text "Question" ]
-                            , questionInner
-                            ]
+                    , div [ Html.Attributes.class "flex w-fit items-stretch [&>*]:focus-visible:z-10 [&>*]:focus-visible:relative [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md has-[>[data-slot=button-group]]:gap-2 [&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none", attribute "data-slot" "button-group", attribute "role" "group" ]
+                        [ button [ Html.Attributes.class "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3", attribute "data-slot" "button" ]
+                            [ text "View all cards" ]
+                        , button [ Html.Attributes.class "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3", attribute "data-slot" "button", Events.onClick PickRandom ]
+                            [ text "Next random question" ]
                         ]
-                    , div [ Html.Attributes.class "flex w-[100px] ml-[10px] shrink-0 items-center gap-2", attribute "data-slot" "item-actions" ]
-                        [ questionButton ]
+                    , deleteButton
                     ]
-                , div [ Html.Attributes.class "flex" ]
-                    [ div [ Html.Attributes.class "group/item flex grow-1 items-center border text-sm rounded-md transition-colors [a]:hover:bg-accent/50 [a]:transition-colors duration-100 flex-wrap outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] border-border py-3 px-4 gap-2.5", attribute "data-size" "sm", attribute "data-slot" "item", attribute "data-variant" "outline" ]
-                        [ answerInner ]
-                    , div [ Html.Attributes.class "flex w-[100px] ml-[10px] items-center gap-2", attribute "data-slot" "item-actions" ]
-                        [ answerButton ]
+                ]
+            , div [ Html.Attributes.class "preview flex w-full justify-center data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start p-10", attribute "data-align" "center" ]
+                [ div
+                    [ Html.Attributes.class "flex w-full max-w-md flex-col gap-6" ]
+                    [ div [ Html.Attributes.class "flex" ]
+                        [ div [ Html.Attributes.class "group/item flex grow-1 items-center border text-sm rounded-md transition-colors [a]:hover:bg-accent/50 [a]:transition-colors duration-100 flex-wrap outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] border-border p-4 gap-4", attribute "data-size" "default", attribute "data-slot" "item", attribute "data-variant" "outline" ]
+                            [ div [ Html.Attributes.class "flex flex-1 flex-col gap-1 [&+[data-slot=item-content]]:flex-none", attribute "data-slot" "item-content" ]
+                                [ div [ Html.Attributes.class "flex w-fit items-center gap-2 text-sm leading-snug font-medium", attribute "data-slot" "item-title" ]
+                                    [ text "Question" ]
+                                , questionInner
+                                ]
+                            ]
+                        , div [ Html.Attributes.class "flex w-[100px] ml-[10px] shrink-0 items-center gap-2", attribute "data-slot" "item-actions" ]
+                            [ questionButton ]
+                        ]
+                    , div [ Html.Attributes.class "flex" ]
+                        [ div [ Html.Attributes.class "group/item flex grow-1 items-center border text-sm rounded-md transition-colors [a]:hover:bg-accent/50 [a]:transition-colors duration-100 flex-wrap outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] border-border py-3 px-4 gap-2.5", attribute "data-size" "sm", attribute "data-slot" "item", attribute "data-variant" "outline" ]
+                            [ answerInner ]
+                        , div [ Html.Attributes.class "flex w-[100px] ml-[10px] items-center gap-2", attribute "data-slot" "item-actions" ]
+                            [ answerButton ]
+                        ]
                     ]
                 ]
             ]
-        ]
+    }
+
+
+
+-- EXPORT
+
+
+toSession : Model -> Session.Session
+toSession model =
+    model.session

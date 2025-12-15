@@ -1,9 +1,12 @@
 module Main exposing (..)
 
+import Array
 import Browser
 import Browser.Navigation as Nav
+import Deckname
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Page
 import Page.Backup as Backup
 import Page.Browser as Browser
 import Page.Deck as Deck
@@ -11,22 +14,13 @@ import Page.Home as Home
 import Page.Login as Login
 import Page.Review as Review
 import Page.Statistics as Statistics
+import Route
+import Session
 import Url
 
 
 type Model
-    = -- NotFound Session
-      Home Home.Model
-    | Review Review.Model
-    | Login Login.Model
-    | Statistics Statistics.Model
-    | Backup Backup.Model
-    | Deck Deck.Model
-    | Browser Browser.Model
-
-
-
--- MAIN
+    = Review Review.Model
 
 
 main : Program () Model Msg
@@ -36,8 +30,8 @@ main =
         , view = view
         , update = update
         , subscriptions = subscriptions
-        , onUrlChange = UrlChanged
-        , onUrlRequest = LinkClicked
+        , onUrlChange = ChangedUrl
+        , onUrlRequest = ClickedLink
         }
 
 
@@ -45,15 +39,10 @@ main =
 -- MODEL
 
 
-type alias Model =
-    { key : Nav.Key
-    , url : Url.Url
-    }
-
-
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
-    ( Model key url, Cmd.none )
+    changeRouteTo (Route.fromUrl url)
+        (Review { session = Session.fromViewer key, showDeleteConfirmDialog = False, editingQuestion = False, editingAnswer = False, showDropdown = False, freeTextQuestion = "", freeTextAnswer = "", isEditing = False, showQuestion = False, showAnswer = False, questionNumber = 0, deck = Array.empty })
 
 
 
@@ -61,25 +50,76 @@ init flags url key =
 
 
 type Msg
-    = LinkClicked Browser.UrlRequest
-    | UrlChanged Url.Url
+    = ChangedUrl Url.Url
+    | ClickedLink Browser.UrlRequest
+    | GotReviewMsg Review.Msg
+
+
+changeRouteTo : Maybe Route.Route -> Model -> ( Model, Cmd Msg )
+changeRouteTo maybeRoute model =
+    let
+        session =
+            toSession model
+    in
+    case maybeRoute of
+        Nothing ->
+            -- ( NotFound, Cmd.none )
+            Review.init session (Deckname.Deckname "")
+                |> updateWith Review GotReviewMsg model
+
+        Just (Route.Review deckname) ->
+            Review.init session deckname
+                |> updateWith Review GotReviewMsg model
+
+
+toSession : Model -> Session.Session
+toSession model =
+    case model of
+        Review review ->
+            Review.toSession review
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        LinkClicked urlRequest ->
+    case ( msg, model ) of
+        ( ClickedLink urlRequest, _ ) ->
             case urlRequest of
                 Browser.Internal url ->
-                    ( model, Nav.pushUrl model.key (Url.toString url) )
+                    case url.fragment of
+                        Nothing ->
+                            -- If we got a link that didn't include a fragment,
+                            -- it's from one of those (href "") attributes that
+                            -- we have to include to make the RealWorld CSS work.
+                            --
+                            -- In an application doing path routing instead of
+                            -- fragment-based routing, this entire
+                            -- `case url.fragment of` expression this comment
+                            -- is inside would be unnecessary.
+                            ( model, Cmd.none )
+
+                        Just _ ->
+                            ( model
+                            , Nav.pushUrl (Session.navKey (toSession model)) (Url.toString url)
+                            )
 
                 Browser.External href ->
-                    ( model, Nav.load href )
+                    ( model
+                    , Nav.load href
+                    )
 
-        UrlChanged url ->
-            ( { model | url = url }
-            , Cmd.none
-            )
+        ( ChangedUrl url, _ ) ->
+            changeRouteTo (Route.fromUrl url) model
+
+        ( GotReviewMsg subMsg, Review review ) ->
+            Review.update subMsg review
+                |> updateWith Review GotReviewMsg model
+
+
+updateWith : (subModel -> Model) -> (subMsg -> Msg) -> Model -> ( subModel, Cmd subMsg ) -> ( Model, Cmd Msg )
+updateWith toModel toMsg model ( subModel, subCmd ) =
+    ( toModel subModel
+    , Cmd.map toMsg subCmd
+    )
 
 
 
@@ -108,11 +148,8 @@ view model =
             }
     in
     case model of
-        Login login ->
-            viewPage Page.Other GotLoginMsg (Login.view login)
-
-        Home home ->
-            viewPage Page.Home GotHomeMsg (Home.view home)
+        Review deck ->
+            viewPage (Page.Review (Deckname.Deckname "")) GotReviewMsg (Review.view deck)
 
 
 viewLink : String -> Html msg
